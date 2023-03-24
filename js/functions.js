@@ -28,7 +28,7 @@ export function showProducts() {
 
   </div>
   <div class="buttons"><button class="btn btn-primary">Edit</button>
-  <button class="btn btn-danger">Delete</button>
+  <button class="btn btn-danger" id="prodDelete" onclick="productDelete(${obj.prodId})">Delete</button>
   </div>
   </div>`;
   });
@@ -40,3 +40,18 @@ export function showProducts() {
   }
 }
 showProducts();
+
+// common function to read localStorage Data
+function getCrudData() {
+  let inputData = JSON.parse(localStorage.getItem("Products")) || [];
+  return inputData;
+}
+
+// function to delete product record
+// function productDelete(prodid) {
+//   let userRecord = getCrudData();
+//   userRecord.splice(prodid, 1);
+//   // showProducts();
+//   localStorage.setItem("Products", JSON.stringify(inputData));
+// }
+// productDelete("#OSp7C");
