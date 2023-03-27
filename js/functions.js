@@ -30,8 +30,6 @@ export function showProducts() {
     </div>
     <div class="buttons" data-id=${obj.prodId}><button type="button" class="btn btn-primary card-link" id="prodEdit">Edit</button>
     <button class="btn btn-danger" id="prodDelete">Delete</button>
-    
-
     </div>
     </div>`;
   });
@@ -118,4 +116,70 @@ function updateProductsModal(cardId) {
       document.querySelector("#productDescription").value = obj.prodDescription;
     }
   });
+}
+
+// event listener for update product function
+const productUpdate = document.querySelectorAll("#prodUpdate");
+productUpdate.forEach((btn) => {
+  btn.addEventListener("click", (event) => {
+    const cardId = document.getElementById("productId").value;
+    // console.log(cardId);
+    updateProducts(cardId);
+  });
+});
+
+// get Image file
+document.getElementById("productImage").addEventListener("change", (event) => {
+  let input = event.target;
+  let reader = new FileReader();
+  reader.onload = function () {
+    let dataURL = reader.result;
+    // console.log(dataURL);
+    // document.getElementById("inputProductImage") = dataURL;
+    let prodImage = document.getElementById("productImage");
+    prodImage.src = dataURL;
+  };
+  reader.readAsDataURL(input.files[0]);
+});
+
+// function to update product details
+function updateProducts(cardId) {
+  let prodId = document.getElementById("productId").value,
+    prodName = document.getElementById("productName").value,
+    prodPrice = document.getElementById("productPrice").value,
+    prodImage = document.getElementById("productImage").src,
+    prodDescription = document.getElementById("productDescription").value;
+
+  // let updateProductData = {
+  //   prodId,
+  //   prodName,
+  //   prodPrice,
+  //   prodImage,
+  //   prodDescription,
+  // };
+  // console.log(updateProductData);
+  if (
+    prodId == "" ||
+    prodName == "" ||
+    prodPrice == "" ||
+    prodImage == "" ||
+    prodDescription == ""
+  ) {
+    showToast("Please fill all the fields", "bg-danger");
+  } else {
+    const oldProductsData = getCrudData();
+    oldProductsData.forEach((elem) => {
+      if (elem.prodId == cardId) {
+        let index = oldProductsData.indexOf(elem);
+        console.log(index);
+        oldProductsData[index].prodId = prodId;
+        oldProductsData[index].prodName = prodName;
+        oldProductsData[index].prodPrice = prodPrice;
+        oldProductsData[index].prodImage = prodImage;
+        oldProductsData[index].prodDescription = prodDescription;
+      }
+      localStorage.setItem("Products", JSON.stringify(oldProductsData));
+    });
+  }
+  // showProducts();
 }
