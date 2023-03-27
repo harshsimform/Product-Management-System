@@ -2,13 +2,13 @@ export function showToast(data, classes) {
   document.getElementById("toastBody").innerText = data;
   document.getElementById("toastBox").classList.add(classes);
   if (
-    document.getElementById("toastBox").classList.contains("bg-primary") &&
+    document.getElementById("toastBox").classList.contains("bg-success") &&
     classes == "bg-danger"
   ) {
-    document.getElementById("toastBox").classList.remove("bg-primary");
+    document.getElementById("toastBox").classList.remove("bg-success");
   } else if (
     document.getElementById("toastBox").classList.contains("bg-danger") &&
-    classes == "bg-primary"
+    classes == "bg-success"
   ) {
     document.getElementById("toastBox").classList.remove("bg-danger");
   }
