@@ -207,4 +207,7 @@ svg {
   .product-details {
     margin-top: 30px;
   }
+  .filter {
+    margin-top: 10px;
+  }
 }

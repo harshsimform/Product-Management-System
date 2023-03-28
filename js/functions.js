@@ -1,13 +1,23 @@
 import { showToast } from "./bootStrapAlert.js";
 
+// common function to read localStorage Data
+function getCrudData() {
+  let prodData = JSON.parse(localStorage.getItem("Products")) || [];
+  return prodData;
+}
+
 // function to show all user data on screen in table
-export function showProducts() {
+export function showProducts(filteredProducts) {
+  let _userData;
+  if (filteredProducts == undefined) {
+    _userData = getCrudData();
+  } else {
+    _userData = filteredProducts;
+  }
   const getProdCard = document.querySelector(".products-card");
-  // below line is the Id number
-  let ind = 1;
-  // below line will stop printing all firstName and email of previous users
+  // below line will stop printing details of old products
   getProdCard.innerHTML = "";
-  let _userData = JSON.parse(localStorage.getItem("Products")) || [];
+  // let _userData = getCrudData();
   const arr = _userData.map((obj) => {
     return `<div class="card">
       <div class="card-img">
@@ -28,7 +38,7 @@ export function showProducts() {
         </svg>
       </div>
     </div>
-    <div class="buttons" data-id=${obj.prodId}><button type="button" class="btn btn-primary card-link" id="prodEdit">Edit</button>
+    <div class="buttons" data-id=${obj.prodId}><button type="button" class="btn btn-primary card-link" id="prodEdit" data-bs-toggle="modal" data-bs-target="#myexampleModal">Edit</button>
     <button class="btn btn-danger" id="prodDelete">Delete</button>
     </div>
     </div>`;
@@ -42,14 +52,9 @@ export function showProducts() {
     getProdCard.innerHTML =
       '<img class="img-fluid no-data-found" src="/Asset/100465-no-data-found.gif">';
   }
+  addEdit();
 }
 showProducts();
-
-// common function to read localStorage Data
-function getCrudData() {
-  let prodData = JSON.parse(localStorage.getItem("Products")) || [];
-  return prodData;
-}
 
 // function to delete products
 function deleteProduct(cardId) {
@@ -93,15 +98,18 @@ deleteButtons.forEach((button) => {
 });
 
 // event listener to open edit products modal
-const myModal = new bootstrap.Modal("#myexampleModal");
-const editButton = document.querySelectorAll("#prodEdit");
-editButton.forEach((button) => {
-  button.addEventListener("click", (event) => {
-    const cardId = event.target.closest(".buttons").dataset.id;
-    myModal.show();
-    updateProductsModal(cardId);
+function addEdit() {
+  const myModal = new bootstrap.Modal("#myexampleModal");
+  const editButton = document.querySelectorAll("#prodEdit");
+  editButton.forEach((button) => {
+    button.addEventListener("click", (event) => {
+      const cardId = event.target.closest(".buttons").dataset.id;
+      console.log(cardId);
+      myModal.show();
+      updateProductsModal(cardId);
+    });
   });
-});
+}
 
 // function to update products
 function updateProductsModal(cardId) {
@@ -149,15 +157,6 @@ function updateProducts(cardId) {
     prodPrice = document.getElementById("productPrice").value,
     prodImage = document.getElementById("productImage").src,
     prodDescription = document.getElementById("productDescription").value;
-
-  // let updateProductData = {
-  //   prodId,
-  //   prodName,
-  //   prodPrice,
-  //   prodImage,
-  //   prodDescription,
-  // };
-  // console.log(updateProductData);
   if (
     prodId == "" ||
     prodName == "" ||
@@ -171,7 +170,7 @@ function updateProducts(cardId) {
     oldProductsData.forEach((elem) => {
       if (elem.prodId == cardId) {
         let index = oldProductsData.indexOf(elem);
-        console.log(index);
+        // console.log(index);
         oldProductsData[index].prodId = prodId;
         oldProductsData[index].prodName = prodName;
         oldProductsData[index].prodPrice = prodPrice;
@@ -179,7 +178,66 @@ function updateProducts(cardId) {
         oldProductsData[index].prodDescription = prodDescription;
       }
       localStorage.setItem("Products", JSON.stringify(oldProductsData));
+      showToast(`#${cardId} Product updated successfully`, "bg-success");
     });
   }
-  // showProducts();
+  showProducts();
+}
+
+// event listener for search input field
+document
+  .getElementById("searchProduct")
+  .addEventListener("input", searchProductsByName);
+
+// -----------------------Testing code for filter and sort-----------------------
+function searchProductsByName() {
+  const searchInput = document.getElementById("searchProduct");
+  const products = getCrudData(); // console.log(searchInput.value);
+  const filteredProducts = products.filter((product) => {
+    return product.prodName
+      .toLowerCase()
+      .includes(searchInput.value.toLowerCase());
+  }); // console.log(filteredProducts);
+  showProducts(filteredProducts);
+}
+
+let configureObj = {
+  input: "",
+  filter: "optId",
+  sort: "optAsc",
+};
+
+function getTargetedData() {
+  let arr = getCrudData(); //to filter with input
+  arr = arr.filter((obj) => {
+    if (obj.prodName.includes(configureObj.input)) {
+      return true;
+    }
+    return false;
+  });
+
+  arr = arr.sort((obj1, obj2) => {
+    if (configureObj.filter === "optName") {
+      return obj2[filter].charAt(0).toLowerCase() <
+        obj1[filter].charAt(0).toLowerCase()
+        ? 1
+        : -1;
+    } else if (configureObj.filter === "optId") {
+      return obj2[filter].charAt(0).toLowerCase() <
+        obj1[filter].charAt(0).toLowerCase()
+        ? 1
+        : -1;
+    } else if (configureObj.filter === "optPrice") {
+      return obj2[filter].charAt(0).toLowerCase() <
+        obj1[filter].charAt(0).toLowerCase()
+        ? 1
+        : -1;
+    }
+  });
+
+  if (configureObj.sort === "Desc") {
+    arr = arr.reverse();
+  }
+  console.log(arr);
+  return arr;
 }
