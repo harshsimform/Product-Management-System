@@ -20,14 +20,13 @@ document
     let reader = new FileReader();
     reader.onload = function () {
       let dataURL = reader.result;
-      // console.log(dataURL);
-      // document.getElementById("inputProductImage") = dataURL;
       let prodImage = document.getElementById("inputProductImage");
       prodImage.src = dataURL;
     };
     reader.readAsDataURL(input.files[0]);
   });
 
+var numberRegex = /^(?:0\.[0-9]{1,2}|[1-9]{1}[0-9]*(\.[0-9]{1,2})?|0)$/;
 // Store Product Details in LocalStorage
 const productSubmitBtn = document.querySelector("#productSubmitBtn");
 productSubmitBtn.addEventListener("click", () => {
@@ -47,6 +46,8 @@ productSubmitBtn.addEventListener("click", () => {
     prodDescription == ""
   ) {
     showToast("Please fill all the fields!", "bg-danger");
+  } else if (numberRegex.test(prodPrice) == false) {
+    showToast("Price must be in number format", "bg-danger");
   } else {
     let inputData = JSON.parse(localStorage.getItem("Products")) || [];
     inputData.push(productData);
@@ -67,5 +68,3 @@ productSubmitBtn.addEventListener("click", () => {
     event.preventDefault();
   });
 });
-
-// localStorage.clear();

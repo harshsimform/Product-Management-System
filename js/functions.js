@@ -25,7 +25,7 @@ export function showProducts(filteredProducts) {
       </div>
       <div class="card-info" data-id=${obj.prodName}>
         <p id="prodId">#${obj.prodId}</p>
-        <p class="text-title" name="prodName">${obj.prodName}</p>
+        <p class="text-title" name="prodName">${obj.prodName.toUpperCase()}</p>
         <p class="text-body">${obj.prodDescription}</p>
       </div>
       <div class="card-footer">
@@ -38,7 +38,9 @@ export function showProducts(filteredProducts) {
         </svg>
       </div>
     </div>
-    <div class="buttons" data-id=${obj.prodId}><button type="button" class="btn btn-primary card-link" id="prodEdit" data-bs-toggle="modal" data-bs-target="#myexampleModal">Edit</button>
+    <div class="buttons" data-id=${
+      obj.prodId
+    }><button type="button" class="btn btn-primary card-link" id="prodEdit" data-bs-toggle="modal" data-bs-target="#myexampleModal">Edit</button>
     <button class="btn btn-danger" id="prodDelete">Delete</button>
     </div>
     </div>`;
@@ -48,11 +50,12 @@ export function showProducts(filteredProducts) {
     for (let i of arr) {
       getProdCard.insertAdjacentHTML("beforeend", i);
     }
-  } else {
+  } else if (arr.length <= 0) {
     getProdCard.innerHTML =
       '<img class="img-fluid no-data-found" src="/Asset/100465-no-data-found.gif">';
   }
   addEdit();
+  addDelete();
 }
 showProducts();
 
@@ -75,28 +78,24 @@ function deleteProduct(cardId) {
 }
 
 // Attach a click event listener to the delete button of each card
-const deleteButtons = document.querySelectorAll("#prodDelete");
-deleteButtons.forEach((button) => {
-  button.addEventListener("click", (event) => {
-    // Get the ID of the product to delete
-    const cardId = event.target.closest(".buttons").dataset.id;
+function addDelete() {
+  const deleteButtons = document.querySelectorAll("#prodDelete");
+  deleteButtons.forEach((button) => {
+    button.addEventListener("click", (event) => {
+      // Get the ID of the product to delete
+      const cardId = event.target.closest(".buttons").dataset.id;
 
-    // Delete the card from local storage
-    deleteProduct(cardId);
+      // Delete the card from local storage
+      deleteProduct(cardId);
 
-    // Remove the card from the DOM
-    event.target.closest(".card").remove();
+      // Remove the card from the DOM
+      showProducts();
 
-    // reload page after product delete
-    setTimeout(function () {
-      window.location.reload();
-    }, 2000);
-
-    // console.log(cardId);
-    showToast(`#${cardId} product deleted`, "bg-danger");
+      // console.log(cardId);
+      showToast(`Product with Id #${cardId} has been deleted`, "bg-danger");
+    });
   });
-});
-
+}
 // event listener to open edit products modal
 function addEdit() {
   const myModal = new bootstrap.Modal("#myexampleModal");
@@ -104,7 +103,7 @@ function addEdit() {
   editButton.forEach((button) => {
     button.addEventListener("click", (event) => {
       const cardId = event.target.closest(".buttons").dataset.id;
-      console.log(cardId);
+      // console.log(cardId);
       myModal.show();
       updateProductsModal(cardId);
     });
@@ -142,8 +141,6 @@ document.getElementById("productImage").addEventListener("change", (event) => {
   let reader = new FileReader();
   reader.onload = function () {
     let dataURL = reader.result;
-    // console.log(dataURL);
-    // document.getElementById("inputProductImage") = dataURL;
     let prodImage = document.getElementById("productImage");
     prodImage.src = dataURL;
   };
@@ -170,7 +167,6 @@ function updateProducts(cardId) {
     oldProductsData.forEach((elem) => {
       if (elem.prodId == cardId) {
         let index = oldProductsData.indexOf(elem);
-        // console.log(index);
         oldProductsData[index].prodId = prodId;
         oldProductsData[index].prodName = prodName;
         oldProductsData[index].prodPrice = prodPrice;
@@ -178,18 +174,14 @@ function updateProducts(cardId) {
         oldProductsData[index].prodDescription = prodDescription;
       }
       localStorage.setItem("Products", JSON.stringify(oldProductsData));
-      showToast(`#${cardId} Product updated successfully`, "bg-success");
+      showToast(`Product with Id #${cardId} has been updated`, "bg-success");
+      document.getElementById("searchProduct").value = "";
     });
   }
   showProducts();
 }
 
-// event listener for search input field
-document
-  .getElementById("searchProduct")
-  .addEventListener("input", searchProductsByName);
-
-// -----------------------Testing code for filter and sort-----------------------
+// function to search products by their name
 function searchProductsByName() {
   const searchInput = document.getElementById("searchProduct");
   const products = getCrudData(); // console.log(searchInput.value);
@@ -197,7 +189,7 @@ function searchProductsByName() {
     return product.prodName
       .toLowerCase()
       .includes(searchInput.value.toLowerCase());
-  }); // console.log(filteredProducts);
+  });
   showProducts(filteredProducts);
 }
 
@@ -207,37 +199,80 @@ let configureObj = {
   sort: "optAsc",
 };
 
+// main function to perform data filter and sorting operation
 function getTargetedData() {
-  let arr = getCrudData(); //to filter with input
-  arr = arr.filter((obj) => {
-    if (obj.prodName.includes(configureObj.input)) {
-      return true;
-    }
-    return false;
-  });
+  let arr = getCrudData();
 
-  arr = arr.sort((obj1, obj2) => {
-    if (configureObj.filter === "optName") {
-      return obj2[filter].charAt(0).toLowerCase() <
-        obj1[filter].charAt(0).toLowerCase()
-        ? 1
-        : -1;
-    } else if (configureObj.filter === "optId") {
-      return obj2[filter].charAt(0).toLowerCase() <
-        obj1[filter].charAt(0).toLowerCase()
-        ? 1
-        : -1;
-    } else if (configureObj.filter === "optPrice") {
-      return obj2[filter].charAt(0).toLowerCase() <
-        obj1[filter].charAt(0).toLowerCase()
-        ? 1
-        : -1;
-    }
-  });
-
-  if (configureObj.sort === "Desc") {
-    arr = arr.reverse();
+  if (configureObj.input) {
+    arr = arr.filter((obj) =>
+      obj.prodName.toLowerCase().includes(configureObj.input.toLowerCase())
+    );
   }
-  console.log(arr);
+
+  const compareFn = (a, b) => {
+    let valueA, valueB;
+
+    if (configureObj.filter === "optId") {
+      valueA = parseInt(a.prodId);
+      valueB = parseInt(b.prodId);
+    } else if (configureObj.filter === "optName") {
+      valueA = a.prodName.toLowerCase();
+      valueB = b.prodName.toLowerCase();
+      // compare alphanumeric values
+      if (valueA < valueB) {
+        return configureObj.sort === "optAsc" ? -1 : 1;
+      } else if (valueA > valueB) {
+        return configureObj.sort === "optAsc" ? 1 : -1;
+      } else {
+        return 0;
+      }
+    } else if (configureObj.filter === "optPrice") {
+      valueA = parseInt(a.prodPrice.replace(/[^0-9.-]+/g, ""));
+      valueB = parseInt(b.prodPrice.replace(/[^0-9.-]+/g, ""));
+    }
+
+    return configureObj.sort === "optAsc" ? valueA - valueB : valueB - valueA;
+  };
+
+  arr.sort(compareFn);
+  // console.log(arr);
   return arr;
 }
+
+// Debounce function for search input field
+function myDebounce(func, delay) {
+  let timeoutId;
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+}
+
+// event listener for search input field
+const searchInput = document.getElementById("searchProduct");
+searchInput.addEventListener(
+  "input",
+  myDebounce((e) => {
+    configureObj.input = e.target.value;
+    searchProductsByName();
+    showProducts(getTargetedData());
+  }, 500)
+);
+
+//event listener for products filter
+const selectFilter = document.getElementById("productFilter");
+selectFilter.addEventListener("change", function (e) {
+  configureObj.filter = e.target.value;
+  // getTargetedData();
+  showProducts(getTargetedData());
+});
+
+//event listener for products sort
+const selectSort = document.getElementById("productSort");
+selectSort.addEventListener("change", function (e) {
+  configureObj.sort = e.target.value;
+  // getTargetedData();
+  showProducts(getTargetedData());
+});
