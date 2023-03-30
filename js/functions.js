@@ -17,7 +17,6 @@ export function showProducts(filteredProducts) {
   const getProdCard = document.querySelector(".products-card");
   // below line will stop printing details of old products
   getProdCard.innerHTML = "";
-  // let _userData = getCrudData();
   const arr = _userData.map((obj) => {
     return `<div class="card">
       <div class="card-img">
@@ -70,9 +69,6 @@ function deleteProduct(cardId) {
   // If the card was found, remove it from the list and update local storage
   if (cardIndex !== -1) {
     inputData.splice(cardIndex, 1);
-    // showToast(`${card.prodName} removed`, 'bg-danger');
-
-    // console.log(cardIndex);
     localStorage.setItem("Products", JSON.stringify(inputData));
   }
 }
@@ -85,17 +81,15 @@ function addDelete() {
       // Get the ID of the product to delete
       const cardId = event.target.closest(".buttons").dataset.id;
 
-      // Delete the card from local storage
+      // Delete the products card from local storage
       deleteProduct(cardId);
-
-      // Remove the card from the DOM
       showProducts();
 
-      // console.log(cardId);
       showToast(`Product with Id #${cardId} has been deleted`, "bg-danger");
     });
   });
 }
+
 // event listener to open edit products modal
 function addEdit() {
   const myModal = new bootstrap.Modal("#myexampleModal");
@@ -113,7 +107,6 @@ function addEdit() {
 // function to update products
 function updateProductsModal(cardId) {
   let products = getCrudData();
-  // console.log(products);
   products.forEach((obj) => {
     if (obj.prodId == cardId) {
       document.querySelector("#productId").value = obj.prodId;
@@ -130,7 +123,6 @@ const productUpdate = document.querySelectorAll("#prodUpdate");
 productUpdate.forEach((btn) => {
   btn.addEventListener("click", (event) => {
     const cardId = document.getElementById("productId").value;
-    // console.log(cardId);
     updateProducts(cardId);
   });
 });
@@ -184,7 +176,7 @@ function updateProducts(cardId) {
 // function to search products by their name
 function searchProductsByName() {
   const searchInput = document.getElementById("searchProduct");
-  const products = getCrudData(); // console.log(searchInput.value);
+  const products = getCrudData();
   const filteredProducts = products.filter((product) => {
     return product.prodName
       .toLowerCase()
@@ -235,7 +227,6 @@ function getTargetedData() {
   };
 
   arr.sort(compareFn);
-  // console.log(arr);
   return arr;
 }
 
@@ -243,9 +234,9 @@ function getTargetedData() {
 function myDebounce(func, delay) {
   let timeoutId;
   return function (...args) {
-    clearTimeout(timeoutId);
+    if (timeoutId) clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
-      func.apply(this, args);
+      func(...args);
     }, delay);
   };
 }
@@ -258,14 +249,13 @@ searchInput.addEventListener(
     configureObj.input = e.target.value;
     searchProductsByName();
     showProducts(getTargetedData());
-  }, 500)
+  }, 1000)
 );
 
 //event listener for products filter
 const selectFilter = document.getElementById("productFilter");
 selectFilter.addEventListener("change", function (e) {
   configureObj.filter = e.target.value;
-  // getTargetedData();
   showProducts(getTargetedData());
 });
 
@@ -273,6 +263,5 @@ selectFilter.addEventListener("change", function (e) {
 const selectSort = document.getElementById("productSort");
 selectSort.addEventListener("change", function (e) {
   configureObj.sort = e.target.value;
-  // getTargetedData();
   showProducts(getTargetedData());
 });

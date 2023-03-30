@@ -2,9 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Montserrat", sans-serif;
   font-family: "Poppins", sans-serif;
-  /* font-family: 'Ropa Sans', sans-serif; */
 }
 
 .pms-logo {
@@ -36,8 +34,8 @@ form {
   border-radius: 6px;
   color: #ffffff;
   text-align: center;
-  font-size: 17px;
-  height: 39px;
+  font-size: 16px;
+  height: 38px;
   width: 180px;
   transition: all 0.5s;
   cursor: pointer;
@@ -123,7 +121,7 @@ form {
 }
 
 .card-img img {
-  width: 200px;
+  width: 222px;
   height: 200px;
   border-radius: 5px;
 }

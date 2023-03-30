@@ -54,8 +54,6 @@ productSubmitBtn.addEventListener("click", () => {
     localStorage.setItem("Products", JSON.stringify(inputData));
     showToast("Product added successfully", "bg-success");
 
-    // console.log(inputData);
-
     document.querySelector("#inputProductId").value = generateRandom();
     document.querySelector("#inputProductName").value = "";
     document.querySelector("#inputProductPrice").value = "";
